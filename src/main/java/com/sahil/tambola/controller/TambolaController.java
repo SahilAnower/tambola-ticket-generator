@@ -2,6 +2,8 @@ package com.sahil.tambola.controller;
 
 import com.sahil.tambola.dto.request.TambolaCreateRequestDTO;
 import com.sahil.tambola.dto.request.TambolaGetRequestDTO;
+import com.sahil.tambola.dto.response.TambolaCreateResponseDTO;
+import com.sahil.tambola.dto.response.TambolaGetResponseDTO;
 import com.sahil.tambola.entity.Tambola;
 import com.sahil.tambola.service.TambolaService;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class TambolaController {
     private final TambolaService tambolaService;
     @PostMapping
-    public void createNewTambolaTickets (@RequestBody TambolaCreateRequestDTO tambolaCreateRequestDTO) {
-        tambolaService.createTambolaSets(tambolaCreateRequestDTO.getNumberOfSets());
+    public TambolaCreateResponseDTO createNewTambolaTickets (@RequestBody TambolaCreateRequestDTO tambolaCreateRequestDTO) {
+        return tambolaService.createTambolaSets(tambolaCreateRequestDTO.getNumberOfSets());
     }
     @GetMapping
-    public Page<Tambola> getTambolaTickets (@ParameterObject TambolaGetRequestDTO tambolaGetRequestDTO) {
+    public TambolaGetResponseDTO getTambolaTickets (@ParameterObject TambolaGetRequestDTO tambolaGetRequestDTO) {
         return tambolaService.getAllTambolaSets(tambolaGetRequestDTO.getPage(), tambolaGetRequestDTO.getSize());
     }
 }
