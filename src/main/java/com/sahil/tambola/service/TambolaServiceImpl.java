@@ -28,6 +28,7 @@ public class TambolaServiceImpl implements TambolaService {
 
     @Override
     public TambolaCreateResponseDTO createTambolaSets(Integer n) {
+        log.info("Inside tambola creation logic for number of sets, n: {}", n);
         if (n == null || n == 0) {
             throw new IllegalArgumentException("Number of sets cannot be null or 0");
         }
@@ -60,6 +61,7 @@ public class TambolaServiceImpl implements TambolaService {
 
     @Override
     public TambolaGetResponseDTO getAllTambolaSets(Integer page, Integer size) {
+        log.info("Inside tambola get logic for pageNumber: {} and pageSize: {}", page, size);
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Order.asc("id")));
         Page<Tambola> pageResult = tambolaRepository.findAll(pageRequest);
         List<Tambola> tambolaList = pageResult.getContent();

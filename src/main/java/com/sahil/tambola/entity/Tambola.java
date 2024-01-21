@@ -14,6 +14,7 @@ public class Tambola {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    // saving each 2d array as a string
     @Column(name = "array_number_set")
     private String arrayNumberSet;
 }
