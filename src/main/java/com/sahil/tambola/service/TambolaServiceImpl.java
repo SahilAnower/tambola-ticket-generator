@@ -104,6 +104,9 @@ public class TambolaServiceImpl implements TambolaService {
                     continue;
                 }
                 int rowNumber = calculateRowNumber(numberToPut, ranges[currCol][0], ranges[currCol][1], ROW_SIZE);
+                if (getCurrentRowElementCountGreaterThanOrEqualToFive(tambolaSet, setNumber, rowNumber)) {
+                    continue;
+                }
                 tambolaSet.get(setNumber)[rowNumber][currCol] = numberToPut;
                 numberSets.get(currCol).remove(numberToPut);
                 sets.remove(setNumber);
@@ -111,6 +114,18 @@ public class TambolaServiceImpl implements TambolaService {
         }
         log.info("tambolaSets: {}", tambolaSet);
         log.info("numberSets: {}", numberSets);
+
+    }
+
+    private boolean getCurrentRowElementCountGreaterThanOrEqualToFive(List<int[][]> tambolaSet, int setNumber, int rowNumber) {
+        int[][] arr = tambolaSet.get(setNumber);
+        int count = 0;
+        for (int i = 0; i < COL_SIZE; i++) {
+            if (arr[rowNumber][i] > 0) {
+                count++;
+            }
+        }
+        return count >= 5;
     }
 
     private int calculateRowNumber(int numberToPut, int rangeStart, int rangeEnd, int rowSize) {
