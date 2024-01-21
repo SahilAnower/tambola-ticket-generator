@@ -95,7 +95,7 @@ public class TambolaServiceImpl implements TambolaService {
                 sets.add(i);
             }
             while(!sets.isEmpty()) {
-                int setNumber = Randomizer.generate(0, TAMBOLA_SET_TICKET_SIZE);
+                int setNumber = Randomizer.generate(0, TAMBOLA_SET_TICKET_SIZE - 1);
                 if (!sets.contains(setNumber)) {
                     continue;
                 }
@@ -115,6 +115,73 @@ public class TambolaServiceImpl implements TambolaService {
         log.info("tambolaSets: {}", tambolaSet);
         log.info("numberSets: {}", numberSets);
 
+        for (int currCol = colEnd; currCol >= colStart; currCol--) {
+            recursePopulate(numberSets, tambolaSet, currCol, rowStart, rowEnd);
+        }
+
+        sortColumns(tambolaSet, colStart, colEnd, rowStart, rowEnd);
+    }
+
+    private void sortColumns(List<int[][]> tambolaSet, int colStart, int colEnd, int rowStart, int rowEnd) {
+        for (int currSet = 0; currSet < TAMBOLA_SET_TICKET_SIZE; currSet++) {
+            for (int currCol = colStart; currCol <= colEnd; currCol++) {
+                List<Integer> sortedOrderList = new ArrayList<>();
+                for (int currRow = rowStart; currRow <= rowEnd; currRow++) {
+                    if (tambolaSet.get(currSet)[currRow][currCol] > 0) {
+                        sortedOrderList.add(tambolaSet.get(currSet)[currRow][currCol]);
+                    }
+                }
+                Collections.sort(sortedOrderList);
+                int currIndex = 0;
+                for (int currRow = rowStart; currRow <= rowEnd; currRow++) {
+                    if (tambolaSet.get(currSet)[currRow][currCol] > 0) {
+                        tambolaSet.get(currSet)[currRow][currCol] = sortedOrderList.get(currIndex++);
+                    }
+                }
+            }
+        }
+    }
+
+    private void recursePopulate(List<Set<Integer>> numberSets, List<int[][]> tambolaSet, int currCol, int rowStart, int rowEnd) {
+        if (numberSets.get(currCol).isEmpty()) {
+            return;
+        }
+        int numberToPut = Randomizer.generate(ranges[currCol][0], ranges[currCol][1]);
+        while(!numberSets.get(currCol).contains(numberToPut)) {
+            numberToPut = Randomizer.generate(ranges[currCol][0], ranges[currCol][1]);
+        }
+        int setNumber = Randomizer.generate(0, TAMBOLA_SET_TICKET_SIZE - 1);
+        int rowNumber = Randomizer.generate(rowStart, rowEnd);
+        int count = 0;
+        while(tambolaSet.get(setNumber)[rowNumber][currCol] > 0 || getCurrentRowElementCountGreaterThanOrEqualToFive(tambolaSet, setNumber, rowNumber)) {
+            setNumber = Randomizer.generate(0, TAMBOLA_SET_TICKET_SIZE - 1);
+            count++;
+            if (count > 6) {
+                rowNumber = Randomizer.generate(rowStart, rowEnd);
+            }
+            if (count > 20) {
+                numberToPut = Randomizer.generate(ranges[currCol][0], ranges[currCol][1]);
+            }
+            if (count > 1000) {
+                return;
+            }
+        }
+        tambolaSet.get(setNumber)[rowNumber][currCol] = numberToPut;
+        numberSets.get(currCol).remove(numberToPut);
+        recursePopulate(numberSets, tambolaSet, currCol, rowStart, rowEnd);
+    }
+
+    private boolean isValidColOrder(int[][] arr, int rowNumber, int currCol, int numberToPut) {
+        if (rowNumber == 0) {
+            return (arr[rowNumber + 1][currCol] <= 0 || arr[rowNumber + 1][currCol] >= numberToPut) &&
+                    (arr[rowNumber + 2][currCol] <= 0 || arr[rowNumber + 2][currCol] >= numberToPut);
+        } else if (rowNumber == 1) {
+            return (arr[rowNumber - 1][currCol] <= 0 || arr[rowNumber - 1][currCol] <= numberToPut) &&
+                    (arr[rowNumber + 1][currCol] <= 0 || arr[rowNumber + 1][currCol] >= numberToPut);
+        }else {
+            return (arr[rowNumber - 1][currCol] <= 0 || arr[rowNumber - 1][currCol] <= numberToPut) &&
+                    (arr[rowNumber - 2][currCol] <= 0 || arr[rowNumber - 2][currCol] <= numberToPut);
+        }
     }
 
     private boolean getCurrentRowElementCountGreaterThanOrEqualToFive(List<int[][]> tambolaSet, int setNumber, int rowNumber) {
